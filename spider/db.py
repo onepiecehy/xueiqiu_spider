@@ -8,7 +8,7 @@ class StockMongo(object):
     PROCESSING = 2
     COMPLETE = 3
     def __init__(self,db,collection,timeout=300):
-        self.client = MongoClient()
+        self.client = MongoClient("mongodb://localhost:27017/")
         self.databese=self.client[db]
         self.db=self.databese[collection]
         self.timeout = timeout
@@ -22,10 +22,10 @@ class StockMongo(object):
 
     def push_stocks(self,symbol,name,current_price):#将股票代码插进数据库，以备爬取评论的时候提取
         try:
-            self.db.insert({'_id':symbol,'status':self.OUTSIANDING,'股票名字':name,'股票现价':current_price})#股票代码作为表的ID
+            self.db.insert_one({"_id":symbol,"status":self.OUTSIANDING,"股票名字":name,"股票现价":current_price})#股票代码作为表的ID
             print(symbol,name,'股票插入成功')
         except errors.DuplicateKeyError as  e:#这里预防万一，怕股票有重复
-            print(name,'已经存在于数据库')
+            print(name,'已经存在于数据库')      
             pass
     def pop(self):
         """
@@ -81,3 +81,7 @@ class StockMongo(object):
 
     def complete(self, symbol):
         self.db.update({'_id': symbol}, {'$set': {'status': self.COMPLETE}})
+
+if __name__ =='__main__':
+    Stock_database=StockMongo('xueqiu','stocks_list')
+    Stock_database.push_stocks(symbol="SZ000111",name="京东方A",current_price="4.10")

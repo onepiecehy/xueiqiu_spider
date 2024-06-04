@@ -1,12 +1,12 @@
 '''爬虫要先执行该段代码，获取所有股票代码，再根据代码获取所有股票评论'''
 
 import requests
-from xueiqiu_spider.UA import agents
+from spider.UA import agents
 import time
 import random
 from multiprocessing import Pool
 import json
-from xueiqiu_spider.db import StockMongo
+from spider.db import StockMongo
 
 
 '''爬虫的第一步，要先爬取的股票代码'''
@@ -28,7 +28,7 @@ def get_data(num):#默认是不使用dialing
     url=stocks_url.format(page=str(num),real_time=real_time)#股票列表URL
     while True:
         session = requests.session()
-        proxy = requests.get('http://localhost:5000/get').text  # 获取本地代理池代理
+        proxy = requests.get('http://localhost:5555/random').text  # 获取本地代理池代理
         proxies = {'http': 'http://{}'.format(proxy),
                    'https': 'http://{}'.format(proxy), }
         session.proxies = proxies  # 携带代理
@@ -50,12 +50,14 @@ def get_data(num):#默认是不使用dialing
             continue
 
 if __name__ =='__main__':
-    pool =Pool(6)
     for i in range(1,59):
-        pool.apply_async(func=get_data,args=(i,))
+        get_data(i)
+    # pool =Pool(6)
+    # for i in range(1,59):
+    #     pool.apply_async(func=get_data,args=(i,))
 
-    pool.close()
-    pool.join()#必须等待所有子进程结束
+    # pool.close()
+    # pool.join()#必须等待所有子进程结束
 
 
 
